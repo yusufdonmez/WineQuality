@@ -1,0 +1,22 @@
+test2:
+11-15-1	NeuralNetwork yapısı (tanh,linear)
+100 satır veri (100,11) shape
+81.863 epoch
+learning rate 0.01 momentum 0.7
+~2 dakika
+Iteration      5K - Error: 0.246115
+Iteration     10K - Error: 0.231512
+Iteration     15K - Error: 0.219012
+Iteration     20K - Error: 0.173447
+Iteration     25K - Error: 0.159147
+Iteration     30K - Error: 0.147573
+Iteration     35K - Error: 0.141303
+Iteration     40K - Error: 0.137077
+Iteration     45K - Error: 0.133337
+Iteration     50K - Error: 0.749550
+Iteration     55K - Error: 0.123553
+Iteration     60K - Error: 0.117477
+Iteration     65K - Error: 0.112310
+Iteration     70K - Error: 0.108867
+Iteration     75K - Error: 0.104504
+Iteration     80K - Error: 0.101046
