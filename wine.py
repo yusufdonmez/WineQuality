@@ -1,10 +1,26 @@
-
 import numpy as np
 
 #
 # Transfer functions
 #
 class TransferFunctions:
+    def relu(x, derivative=False):
+        if (derivative == True):
+            for i in range(0, len(x)):
+                for k in range(len(x[i])):
+                    if x[i][k] > 0:
+                        x[i][k] = 1
+                    else:
+                        x[i][k] = 0
+            return x
+        for i in range(0, len(x)):
+            for k in range(0, len(x[i])):
+                if x[i][k] > 0:
+                    pass  # do nothing since it would be effectively replacing x with x
+                else:
+                    x[i][k] = 0
+        return x
+
     def sgm(x, Derivative=False):
         if not Derivative:
             return 1.0 / (1.0 + np.exp(-x))
@@ -38,7 +54,7 @@ class TransferFunctions:
             return y
         else:
             return 1.0
-
+        
 #
 # Classes
 #
@@ -156,14 +172,12 @@ class BackPropagationNetwork:
             self._previousWeightDelta[index] = weightDelta
         
         return error
-        
+    
 #normalization function
 def norm(dizi):
-    global Maxs,Mins
-    Maxs = np.amax(dizi,axis=0)
-    #Maxs = np.array([210,200,50])
-    Mins = np.amin(dizi,axis=0)
-    #Mins =np.array([100,30,30])
+    #global Maxs, Mins
+    #Maxs = np.amax(dizi,axis=0)
+    #Mins = np.amin(dizi,axis=0)
     A = []
     for d in dizi:
         a = []
@@ -191,45 +205,62 @@ def Sor(inp):
 # If run as a script, create a test object
 #
 if __name__ == "__main__":
-     
+ 
     #veri içeri alma
     from numpy import genfromtxt 
-    my_data = genfromtxt('winequality-red.csv', delimiter=';',skip_header=1)
-
-    train = my_data[:100,:] #my_data[:1200,:]
-    test = my_data[100:,:]
+    my_data = genfromtxt('winequality-white.csv', delimiter=';',skip_header=1)
+    print("dosyadan veri okundu...")
+    #for normalizaiton
+    global Maxs, Mins
+    Maxs = np.amax(my_data,axis=0)
+    Mins = np.amin(my_data,axis=0) 
+    print("alt üst degerler saptandı...")
+    #print(Maxs,Mins)
+    
+    ayrim = 200
+    train = my_data[:ayrim,:] #my_data[:1200,:]
+    test = my_data[ayrim:,:]
     train_input = train[:,:11]
     train_target= train[:,11:]
     test_input = test[:,:11]
     test_target = test[:, 11:]
-    """
-    print("my_data: ",my_data.shape)
-    print("train: ", train.shape)
-    print("test: ", test.shape)
-    print("train_input shape: ",train_input.shape)
-    print("train_target shape: ",train_target.shape)
-    """
+    print("train test setleri ayrıldı. veri satır sayısı: ",train.shape )
+    
+    learning_rate = 0.02
+    momentum = 0.5
+    
     #lvTarget = norm(train_target)
     lvTarget = train_target/10
     lvInput = norm(train_input)
     #katman sayısı kadar Transfer Fonksiyonu EKLE
-    lFuncs = [None, TransferFunctions.tanh, TransferFunctions.linear, TransferFunctions.sgm]
+    lFuncs = [None, TransferFunctions.relu, TransferFunctions.sgm]
     #Katman yapısını belirle
-    bpn = BackPropagationNetwork((11,15,5,1), lFuncs)
+    bpn = BackPropagationNetwork((11,15,1), lFuncs)
+    print("Neural Network olusturuldu... Yapı: ",bpn.shape)
     #iterasyon sayısı ve istenilen hata oranı gir
-    lnMax = 100000 #50000
+    lnMax = 10000 #50000
     lnErr = 1e-1  #1e-6 0.1
+    print("train basladı. epoch: ",lnMax," L_rate",learning_rate," momentum: ",momentum)
     for i in range(lnMax+1):
-        err = bpn.TrainEpoch(lvInput, lvTarget,0.01, 0.7)
-        if i % 5000 == 0 and i > 0: #5000
+        err = bpn.TrainEpoch(lvInput, lvTarget,learning_rate, momentum)
+        if i % 2000 == 0 and i > 0: #5000
             print("Iteration {0:6d}K - Error: {1:0.6f}".format(int(i/1000), err))
         if err <= lnErr:
             print("İstenilen hata oranına ulaşıldı. Iter: {0}".format(i))
-            break
-  
+            break     
+    print("train tamamlandı...")   
         
     # Display output
-    
-    lvOutput = bpn.Run(lvInput)
-    for i in range(train_input.shape[0]):
-        print("Input: {0} Output: {1} expect: {2}".format(train_input[i], lvOutput[i],lvTarget[i]))
+    #lvOutput = bpn.Run(lvInput)
+    #for i in range(train_input.shape[0]):
+        #print("Input: {0} Output: {1} expect: {2}".format(train_input[i], lvOutput[i],lvTarget[i]))
+     #   print("Output: {0} expect: {1}".format(lvOutput[i],lvTarget[i]))
+#test safhası
+    print("test başladı...")
+    test_input_norm = norm(test_input)
+    test_output = bpn.Run(test_input_norm)
+    dogru = 0
+    for i in range(test_output.shape[0]):
+        if round(test_output[i][0],1) == test_target[i][0]/10:
+            dogru = dogru + 1
+    print("oran: ",100*dogru/i)
