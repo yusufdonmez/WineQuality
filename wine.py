@@ -217,7 +217,8 @@ if __name__ == "__main__":
     print("alt üst degerler saptandı...")
     #print(Maxs,Mins)
     
-    ayrim = 200
+   
+    ayrim = 1000
     train = my_data[:ayrim,:] #my_data[:1200,:]
     test = my_data[ayrim:,:]
     train_input = train[:,:11]
@@ -226,16 +227,16 @@ if __name__ == "__main__":
     test_target = test[:, 11:]
     print("train test setleri ayrıldı. veri satır sayısı: ",train.shape )
     
-    learning_rate = 0.02
+    learning_rate = 0.03
     momentum = 0.5
     
     #lvTarget = norm(train_target)
     lvTarget = train_target/10
     lvInput = norm(train_input)
     #katman sayısı kadar Transfer Fonksiyonu EKLE
-    lFuncs = [None, TransferFunctions.relu, TransferFunctions.sgm]
+    lFuncs = [None, TransferFunctions.relu, TransferFunctions.sgm, TransferFunctions.sgm, TransferFunctions.sgm]
     #Katman yapısını belirle
-    bpn = BackPropagationNetwork((11,15,1), lFuncs)
+    bpn = BackPropagationNetwork((11,15,8,5,1), lFuncs)
     print("Neural Network olusturuldu... Yapı: ",bpn.shape)
     #iterasyon sayısı ve istenilen hata oranı gir
     lnMax = 10000 #50000
@@ -263,4 +264,4 @@ if __name__ == "__main__":
     for i in range(test_output.shape[0]):
         if round(test_output[i][0],1) == test_target[i][0]/10:
             dogru = dogru + 1
-    print("oran: ",100*dogru/i)
+    print("dogruluk oran: ",100*dogru/i)
